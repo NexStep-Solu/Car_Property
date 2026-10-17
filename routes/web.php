@@ -1,46 +1,28 @@
 <?php
 
-
-use App\Http\Controllers\Auth\SocialLoginController;
-use App\Http\Controllers\BranchController;
-use App\Http\Controllers\CashDashboardController;
-use App\Http\Controllers\HospitalDashboardController;
-
-use App\Http\Controllers\CurrencyController;
-
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CarCategoryController;
+use App\Http\Controllers\CarController;
+use App\Http\Controllers\CarMakeController;
+use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\DeviceTokenController;
+use App\Http\Controllers\IdentityDocumentController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PackageController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentWebhookEventController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\LocationController;
-use App\Http\Controllers\PatientController;
-use App\Http\Controllers\RoomTypeController;
-use App\Http\Controllers\RoomController;
-use App\Http\Controllers\BedController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\MedicineCategoryController;
-use App\Http\Controllers\MedicineController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\StockMovementController;
-use App\Http\Controllers\PurchaseOrderController;
-
-// Hospital Modules
-use App\Http\Controllers\AppointmentController;
-use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\BillingController;
-use App\Http\Controllers\InsuranceController;
-use App\Http\Controllers\LabTestController;
-use App\Http\Controllers\PrescriptionController;
-use App\Http\Controllers\VitalController;
-use App\Http\Controllers\MedicalRecordController;
-use App\Http\Controllers\IpdRecordController;
-use App\Http\Controllers\DoctorScheduleController;
-use App\Http\Controllers\PatientQueueController;
-use App\Http\Controllers\OpdRecordController;
-use App\Http\Controllers\OperationTheaterController;
-use App\Http\Controllers\SurgeryScheduleController;
-
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SellerApplicationController;
+use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\ShowroomApplicationController;
+use App\Http\Controllers\ShowroomController;
+use App\Http\Controllers\ShowroomDocumentController;
+use App\Http\Controllers\ShowroomMemberController;
+use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminOnly;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -49,136 +31,88 @@ Route::get('/offline', function () {
     return view('offline');
 });
 
+// Root URL IS the login page: localhost:8000 shows login directly.
 Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
-Route::get('auth/google', [SocialLoginController::class, 'redirectToGoogle'])->name('google.login');
-Route::get('auth/google/callback', [SocialLoginController::class, 'handleGoogleCallback']);
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return app(AuthenticatedSessionController::class)->create(request());
+})->name('login');
+
+Route::post('/', [AuthenticatedSessionController::class, 'store'])
+    ->middleware('guest')
+    ->name('login.store');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard',  [HospitalDashboardController::class, 'index'])->name('dashboard');
-    
-    // Dashboard API endpoints
-    Route::get('api/dashboard/stats', [HospitalDashboardController::class, 'apiStats']);
-    Route::get('api/dashboard/charts', [HospitalDashboardController::class, 'apiCharts']);
-    Route::get('api/dashboard/recent-patients', [HospitalDashboardController::class, 'apiRecentPatients']);
-    Route::get('api/dashboard/upcoming-appointments', [HospitalDashboardController::class, 'apiUpcomingAppointments']);
-    Route::get('api/dashboard/ipd-patients', [HospitalDashboardController::class, 'apiIpdPatients']);
-    Route::get('api/dashboard/low-stock', [HospitalDashboardController::class, 'apiLowStockMedicines']);
-    Route::get('api/dashboard/recent-billings', [HospitalDashboardController::class, 'apiRecentBillings']);
-    
+    Route::get('dashboard', function () {
+        return Inertia::render('dashboard', [
+            'stats' => [
+                'users' => \App\Models\User::count(),
+                'roles' => \Spatie\Permission\Models\Role::count(),
+                'permissions' => \Spatie\Permission\Models\Permission::count(),
+            ],
+        ]);
+    })->name('dashboard');
+
     Route::middleware([AdminOnly::class])->group(function () {
-        Route::get('cash-dashboard', [CashDashboardController::class, 'index'])->name('cash.dashboard');
-        Route::get('employee-dashboard', [CashDashboardController::class, 'employeeDashboard'])->name('cash.employeeDashboard');
-        Route::post('cash-ledgers/income', [CashDashboardController::class, 'storeIncome'])->name('cash-ledgers.income.store');
-        Route::post('cash-ledgers/outcome', [CashDashboardController::class, 'storeOutcome'])->name('cash-ledgers.outcome.store');
         Route::resource('users', UserController::class);
-        Route::resource('patients', PatientController::class);
-        Route::resource('roles', RoleController::class);
-        Route::resource('permissions', PermissionController::class);
-        Route::resource('departments', DepartmentController::class);
-        Route::resource('branches', BranchController::class);
-        Route::resource('locations', LocationController::class);
-        Route::resource('currencies', CurrencyController::class);
-        Route::resource('employees', EmployeeController::class);
-
-        // Hospital ERP - Master Setup
-        Route::resource('room_types', RoomTypeController::class);
-        Route::resource('rooms', RoomController::class);
-        Route::resource('beds', BedController::class);
-
-        // Pharmacy - Suppliers
-        Route::resource('suppliers', SupplierController::class);
-        Route::post('suppliers/{supplier}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
-
-        // Pharmacy - Medicine Categories
-        Route::resource('medicine-categories', MedicineCategoryController::class);
-        Route::post('medicine-categories/{medicineCategory}/toggle-status', [MedicineCategoryController::class, 'toggleStatus'])->name('medicine-categories.toggle-status');
-
-        // Pharmacy - Medicines
-        Route::resource('medicines', MedicineController::class);
-        Route::post('medicines/{medicine}/toggle-status', [MedicineController::class, 'toggleStatus'])->name('medicines.toggle-status');
-
-        // Pharmacy - Inventory
-        Route::resource('inventory', InventoryController::class);
-        Route::post('inventory/{inventory}/adjust', [InventoryController::class, 'adjustStock'])->name('inventory.adjust');
-        Route::post('inventory/{inventory}/damage', [InventoryController::class, 'markDamaged'])->name('inventory.damage');
-
-        // Pharmacy - Stock Movements
-        Route::resource('stock-movements', StockMovementController::class);
-        Route::get('api/low-stock', [StockMovementController::class, 'getLowStockMedicines'])->name('api.low-stock');
-        Route::get('api/expiring-stock', [StockMovementController::class, 'getExpiringStock'])->name('api.expiring-stock');
-        Route::get('api/inventory-summary', [StockMovementController::class, 'getInventorySummary'])->name('api.inventory-summary');
-
-        // Pharmacy - Purchase Orders
-        Route::resource('purchase-orders', PurchaseOrderController::class);
-        Route::post('purchase-orders/{purchaseOrder}/status', [PurchaseOrderController::class, 'updateStatus'])->name('purchase-orders.status');
-        Route::post('purchase-orders/{purchaseOrder}/receive', [PurchaseOrderController::class, 'receiveStock'])->name('purchase-orders.receive');
-
-        // Hospital - Appointments
-        Route::resource('appointments', AppointmentController::class);
-        Route::post('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status');
-
-        // Hospital - Services
-        Route::resource('services', ServiceController::class);
-        Route::post('services/{service}/toggle-status', [ServiceController::class, 'toggleStatus'])->name('services.toggle-status');
-
-        // Hospital - Billing
-        Route::resource('billings', BillingController::class);
-        Route::post('billings/{billing}/payment', [BillingController::class, 'payment'])->name('billings.payment');
-
-        // Hospital - Insurance
-        Route::resource('insurances', InsuranceController::class);
-
-        // Hospital - Lab Tests
-        Route::resource('lab-tests', LabTestController::class);
-
-        // Hospital - Prescriptions
-        Route::resource('prescriptions', PrescriptionController::class);
-
-        // Hospital - Vitals
-        Route::resource('vitals', VitalController::class);
-
-        // Hospital - Medical Records
-        Route::resource('medical-records', MedicalRecordController::class);
-
-        // Hospital - IPD Records
-        Route::resource('ipd-records', IpdRecordController::class);
-        Route::post('ipd-records/{ipdRecord}/discharge', [IpdRecordController::class, 'discharge'])->name('ipd-records.discharge');
-
-        // Hospital - Doctor Schedules
-        Route::resource('doctor-schedules', DoctorScheduleController::class);
-        Route::post('doctor-schedules/{doctorSchedule}/toggle', [DoctorScheduleController::class, 'toggleStatus'])->name('doctor-schedules.toggle');
-        Route::get('api/doctor-schedules/{doctorSchedule}/slots', [DoctorScheduleController::class, 'getAvailableSlots'])->name('api.doctor-schedules.slots');
-
-        // Hospital - Patient Queue
-        Route::resource('patient-queues', PatientQueueController::class);
-        Route::post('patient-queues/{patientQueue}/call', [PatientQueueController::class, 'callPatient'])->name('patient-queues.call');
-        Route::post('patient-queues/{patientQueue}/start', [PatientQueueController::class, 'startConsultation'])->name('patient-queues.start');
-        Route::post('patient-queues/{patientQueue}/complete', [PatientQueueController::class, 'completeConsultation'])->name('patient-queues.complete');
-        Route::post('patient-queues/{patientQueue}/no-show', [PatientQueueController::class, 'markNoShow'])->name('patient-queues.no-show');
-        Route::post('patient-queues/{patientQueue}/cancel', [PatientQueueController::class, 'cancelQueue'])->name('patient-queues.cancel');
-        Route::get('api/patient-queues/waiting-count', [PatientQueueController::class, 'getWaitingCount'])->name('api.patient-queues.waiting');
-        Route::get('api/patient-queues/next', [PatientQueueController::class, 'getNextInQueue'])->name('api.patient-queues.next');
-
-        // Hospital - OPD Records
-        Route::resource('opd-records', OpdRecordController::class);
-
-        // Hospital - Operation Theater
-        Route::resource('operation-theaters', OperationTheaterController::class);
-        Route::post('operation-theaters/{operationTheater}/toggle', [OperationTheaterController::class, 'toggleAvailability'])->name('operation-theaters.toggle');
-
-        // Hospital - Surgery Schedules
-        Route::resource('surgery-schedules', SurgeryScheduleController::class);
-        Route::post('surgery-schedules/{surgerySchedule}/start', [SurgeryScheduleController::class, 'startSurgery'])->name('surgery-schedules.start');
-        Route::post('surgery-schedules/{surgerySchedule}/complete', [SurgeryScheduleController::class, 'completeSurgery'])->name('surgery-schedules.complete');
-        Route::post('surgery-schedules/{surgerySchedule}/cancel', [SurgeryScheduleController::class, 'cancelSurgery'])->name('surgery-schedules.cancel');
-
-        Route::get('admin/dashboard', function () {
-            return Inertia::render('Admin/Dashboard');
-        })->name('admin.dashboard');
+        Route::resource('roles', RoleController::class)->except(['create', 'show', 'edit']);
+        Route::resource('permissions', PermissionController::class)->except(['create', 'show', 'edit']);
     });
+
+    Route::resource('showrooms', ShowroomController::class);
+    Route::post('showrooms/{showroom}/status', [ShowroomController::class, 'updateStatus'])->name('showrooms.status');
+    Route::resource('showrooms.members', ShowroomMemberController::class)->except(['create', 'show', 'edit']);
+
+    Route::resource('applications', ShowroomApplicationController::class)->except(['edit', 'update']);
+    Route::post('applications/{application}/submit', [ShowroomApplicationController::class, 'submit'])->name('applications.submit');
+    Route::post('applications/{application}/review', [ShowroomApplicationController::class, 'review'])->name('applications.review');
+    Route::resource('applications.documents', ShowroomDocumentController::class)->only(['store', 'destroy']);
+    Route::post('applications/{application}/documents/{document}/review', [ShowroomDocumentController::class, 'review'])->name('applications.documents.review');
+    Route::get('applications/{application}/documents/{document}/download', [ShowroomDocumentController::class, 'download'])->name('applications.documents.download');
+
+    Route::resource('cars', CarController::class);
+    Route::post('cars/{car}/status', [CarController::class, 'updateStatus'])->name('cars.status');
+    Route::post('cars/{car}/images', [CarController::class, 'uploadImage'])->name('cars.images.store');
+    Route::delete('cars/{car}/images/{image}', [CarController::class, 'destroyImage'])->name('cars.images.destroy');
+    Route::post('cars/{car}/images/{image}/primary', [CarController::class, 'setPrimaryImage'])->name('cars.images.primary');
+
+    Route::get('catalogue', [CarMakeController::class, 'index'])->name('catalogue.index');
+    Route::resource('makes', CarMakeController::class)->only(['store', 'update', 'destroy']);
+    Route::resource('models', CarModelController::class)->only(['store', 'update', 'destroy']);
+    Route::resource('categories', CarCategoryController::class)->only(['store', 'update', 'destroy']);
+
+    Route::prefix('admin')->name('admin.')->middleware([AdminOnly::class])->group(function () {
+        Route::resource('settings', SettingController::class)->only(['index', 'store', 'update', 'destroy']);
+    });
+
+    // Note: explicit parameter mapping — resource names with dashes would
+    // otherwise bind as {seller_application} instead of {application}.
+    $sellerParams = ['seller-applications' => 'application'];
+    Route::resource('seller-applications', SellerApplicationController::class)->except(['edit', 'update'])->parameters($sellerParams);
+    Route::post('seller-applications/{application}/submit', [SellerApplicationController::class, 'submit'])->name('seller-applications.submit');
+    Route::post('seller-applications/{application}/review', [SellerApplicationController::class, 'review'])->name('seller-applications.review');
+    Route::resource('seller-applications.documents', IdentityDocumentController::class)->only(['store', 'destroy'])->parameters($sellerParams + ['documents' => 'document']);
+    Route::post('seller-applications/{application}/documents/{document}/review', [IdentityDocumentController::class, 'review'])->name('seller-applications.documents.review');
+    Route::get('seller-applications/{application}/documents/{document}/download', [IdentityDocumentController::class, 'download'])->name('seller-applications.documents.download');
+
+    Route::resource('packages', PackageController::class)->except(['show']);
+    Route::resource('subscriptions', SubscriptionController::class)->only(['index', 'store', 'show']);
+    Route::post('subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+    Route::resource('payments', PaymentController::class)->only(['index', 'store', 'show']);
+    Route::post('payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('payments.confirm');
+    Route::post('payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
+    Route::resource('webhooks', PaymentWebhookEventController::class)->only(['index', 'show'])->parameters(['webhooks' => 'webhookEvent']);
+
+    Route::resource('reports', ReportController::class)->only(['index', 'store', 'show', 'destroy']);
+    Route::post('reports/{report}/handle', [ReportController::class, 'handle'])->name('reports.handle');
+    Route::resource('notifications', NotificationController::class)->only(['index', 'destroy']);
+    Route::post('notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::resource('audit-logs', AuditLogController::class)->only(['index']);
+    Route::resource('device-tokens', DeviceTokenController::class)->only(['store', 'destroy']);
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

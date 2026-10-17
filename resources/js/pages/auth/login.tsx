@@ -5,7 +5,6 @@ import { FormEventHandler } from 'react';
 import ColorBends from '@/components/ColorBends';
 import Cubes from '@/components/Cubes';
 import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,10 +19,9 @@ type LoginForm = {
 
 interface LoginProps {
     status?: string;
-    canResetPassword: boolean;
 }
 
-export default function Login({ status, canResetPassword }: LoginProps) {
+export default function Login({ status }: LoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
         email: '',
         password: '',
@@ -59,11 +57,11 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                 </div>
             </div>
             <div className="fixed top-6 left-6 z-20 rounded-xl bg-white/70 px-3 py-2 backdrop-blur-md dark:bg-black/50">
-                <a href="/" className="flex items-center gap-2 font-medium transition hover:opacity-80">
+                <a href="/dashboard" className="flex items-center gap-2 font-medium transition hover:opacity-80">
                     <div className="text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                        <img src="./favicon.ico" alt="Unity Hospital" />
+                        <img src="/icons/carselling.png" alt="Car Property" />
                     </div>
-                    <span className="hidden sm:inline">Unity Hospital Ltd.</span>
+                    <span className="hidden sm:inline">Car Property</span>
                 </a>
             </div>
 
@@ -98,11 +96,6 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                                     <div className="grid gap-2">
                                                         <div className="flex items-center">
                                                             <Label htmlFor="password">Password</Label>
-                                                            {canResetPassword && (
-                                                                <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
-                                                                    Forgot password?
-                                                                </TextLink>
-                                                            )}
                                                         </div>
                                                         <Input
                                                             id="password"
@@ -132,19 +125,6 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                                                         Log in
                                                     </Button>
-                                                    {/* <div className="my-4 flex items-center">
-                                        <div className="flex-grow border-t"></div>
-                                        <span className="text-muted-foreground px-2 text-sm">OR</span>
-                                        <div className="flex-grow border-t"></div>
-                                    </div>
-
-                                    <a
-                                        href={route('google.login')}
-                                        className="hover:bg-primary flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition"
-                                    >
-                                        <img src="/google.png" alt="Google" className="h-5 w-5" />
-                                        Continue with Google
-                                    </a> */}
                                                 </div>
                                             </form>
                                         </div>

@@ -13,11 +13,11 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
-'google' => [
-    'client_id' => env('GOOGLE_CLIENT_ID'),
-    'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-    'redirect' => env('GOOGLE_REDIRECT_URL'),
-],
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URL'),
+    ],
 
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
@@ -37,6 +37,23 @@ return [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
+        ],
+    ],
+
+    'payments' => [
+        'providers' => [
+            'manual' => [
+                'webhook_secret' => env('PAYMENTS_MANUAL_WEBHOOK_SECRET'),
+            ],
+            'stripe' => [
+                'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+            ],
+            'wave' => [
+                'webhook_secret' => env('WAVE_WEBHOOK_SECRET'),
+            ],
+            'kbzpay' => [
+                'webhook_secret' => env('KBZPAY_WEBHOOK_SECRET'),
+            ],
         ],
     ],
 

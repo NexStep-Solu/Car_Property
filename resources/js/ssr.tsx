@@ -11,12 +11,13 @@ createServer((page) =>
         page,
         render: ReactDOMServer.renderToString,
         title: (title) => `${title} - ${appName}`,
-        resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')) as any,
         setup: ({ App, props }) => {
             /* eslint-disable */
             // @ts-expect-error
             global.route<RouteName> = (name, params, absolute) =>
-                route(name, params as any, absolute, {
+                route(name, params as Record<string, string | number>, absolute, {
                     // @ts-expect-error
                     ...page.props.ziggy,
                     // @ts-expect-error

@@ -10,11 +10,7 @@ import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 import { toast } from 'sonner';
 
-interface Props {
-    permissions: Array<{ id: number; name: string }>;
-}
-
-export default function PermissionsCreate({ permissions }: Props) {
+export default function PermissionsCreate() {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Permissions',

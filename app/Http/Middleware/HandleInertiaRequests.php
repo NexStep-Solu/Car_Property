@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Spatie\Permission\Models\Permission;
 use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
@@ -44,15 +45,25 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => fn() => $request->user()
-                    ? [
-                        ...$request->user()->only('id', 'name', 'email'),
+                'user' => function () use ($request) {
+                    $user = $request->user();
 
-                        'roles' => $request->user()->getRoleNames(),
-                        'permissions' => $request->user()->getAllPermissions()->pluck('name'),
+                    if (! $user) {
+                        return null;
+                    }
 
-                    ]
-                    : null,
+                    // Super Admin effectively holds every permission on every
+                    // guard, so share the full list for UI gating.
+                    $permissions = $user->hasRole('super_admin', 'admin')
+                        ? Permission::pluck('name')
+                        : $user->getAllPermissions()->pluck('name');
+
+                    return [
+                        ...$user->only('id', 'name', 'email'),
+                        'roles' => $user->getRoleNames(),
+                        'permissions' => $permissions,
+                    ];
+                },
             ],
             'ziggy' => fn(): array => [
                 ...(new Ziggy)->toArray(),

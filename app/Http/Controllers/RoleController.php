@@ -37,7 +37,11 @@ class RoleController extends Controller
         ]);
 
         if (!empty($validated['permissions'])) {
-            $permissions = Permission::whereIn('id', $validated['permissions'])->get();
+            // New roles are web-guarded: silently drop any permission id
+            // from another guard instead of throwing GuardDoesNotMatch.
+            $permissions = Permission::whereIn('id', $validated['permissions'])
+                ->where('guard_name', 'web')
+                ->get();
             $role->syncPermissions($permissions);
         }
 
@@ -57,7 +61,10 @@ class RoleController extends Controller
         ]);
 
         if (isset($validated['permissions'])) {
-            $permissions = Permission::whereIn('id', $validated['permissions'])->get();
+            // Only permissions sharing the role's guard can attach.
+            $permissions = Permission::whereIn('id', $validated['permissions'])
+                ->where('guard_name', $role->guard_name)
+                ->get();
             $role->syncPermissions($permissions);
         }
 

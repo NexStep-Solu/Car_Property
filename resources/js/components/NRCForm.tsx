@@ -2,7 +2,30 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEffect, useState } from 'react';
 import { nrcdata } from './nrcdata';
-const NRCForm: React.FC<any> = ({
+
+interface NRCEntry {
+    id: string;
+    name_en: string;
+    name_mm: string;
+    nrc_code: string;
+    created_at: string;
+    updated_at: string;
+}
+
+interface NRCFormProps {
+    NRCCodeSelect?: string;
+    setNRCCodeSelect: (v: string) => void;
+    NRCPlaceSelect: string;
+    setNRCPlaceSelect: (v: string) => void;
+    NRCTypeSelect: string;
+    setNRCTypeSelect: (v: string) => void;
+    NRCCode: string;
+    setNRCCode: (v: string) => void;
+    language?: string;
+    onUpdate: (v: string) => void;
+}
+
+const NRCForm: React.FC<NRCFormProps> = ({
     NRCCodeSelect = '1',
     setNRCCodeSelect,
     NRCPlaceSelect,
@@ -40,7 +63,7 @@ const NRCForm: React.FC<any> = ({
         { en: 'S', mm: 'စ' },
     ];
 
-    const [placen, setPlacen] = useState<any[]>([]);
+    const [placen, setPlacen] = useState<NRCEntry[]>([]);
 
     useEffect(() => {
         const data = nrcdata;

@@ -1,7 +1,18 @@
 import { usePage } from '@inertiajs/react';
 
+interface AuthUser {
+    permissions?: string[];
+}
+
+interface SharedProps {
+    auth?: {
+        user?: AuthUser | null;
+    };
+    [key: string]: unknown;
+}
+
 export function usePermission() {
-    const { auth } = usePage().props as any;
+    const { auth } = usePage<SharedProps>().props;
 
     const permissions: string[] =
         auth?.user?.permissions || [];

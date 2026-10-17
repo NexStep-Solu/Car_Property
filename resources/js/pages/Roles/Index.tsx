@@ -18,11 +18,13 @@ import { toast } from 'sonner';
 interface Permission {
     id: number;
     name: string;
+    guard_name: string;
 }
 
 interface Role {
     id: number;
     name: string;
+    guard_name: string;
     permissions: Permission[];
 }
 
@@ -42,7 +44,7 @@ export default function RolesIndex({ roles, permissions }: Props) {
     const { hasPermission } = usePermission();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingRole, setEditingRole] = useState<Role | null>(null);
-    const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
+    const [, setSelectedPermissions] = useState<number[]>([]);
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -193,9 +195,13 @@ export default function RolesIndex({ roles, permissions }: Props) {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Permissions</Label>
+                                        <Label>
+                                            Permissions <span className="text-muted-foreground">(web guard only — new roles are web-guarded)</span>
+                                        </Label>
                                         <div className="max-h-60 space-y-2 overflow-y-auto rounded-md border p-4">
-                                            {permissions.map((permission) => (
+                                            {permissions
+                                                .filter((permission) => permission.guard_name === 'web')
+                                                .map((permission) => (
                                                 <div key={permission.id} className="flex items-center space-x-2">
                                                     <Checkbox
                                                         id={`create-perm-${permission.id}`}
@@ -256,7 +262,12 @@ export default function RolesIndex({ roles, permissions }: Props) {
                                         roles.data.map((role) => (
                                             <TableRow key={role.id}>
                                                 <TableCell>{role.id}</TableCell>
-                                                <TableCell className="font-medium">{role.name}</TableCell>
+                                                <TableCell className="font-medium">
+                                                    {role.name}{' '}
+                                                    <Badge variant="outline" className="ml-1">
+                                                        {role.guard_name}
+                                                    </Badge>
+                                                </TableCell>
                                                 <TableCell>
                                                     <div className="flex flex-wrap gap-1">
                                                         {role.permissions.length === 0 ? (
@@ -310,9 +321,16 @@ export default function RolesIndex({ roles, permissions }: Props) {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Permissions</Label>
+                                        <Label>
+                                            Permissions{' '}
+                                            <span className="text-muted-foreground">
+                                                ({editingRole?.guard_name} guard only — cross-guard assignment is rejected)
+                                            </span>
+                                        </Label>
                                         <div className="max-h-60 space-y-2 overflow-y-auto rounded-md border p-4">
-                                            {permissions.map((permission) => (
+                                            {permissions
+                                                .filter((permission) => !editingRole || permission.guard_name === editingRole.guard_name)
+                                                .map((permission) => (
                                                 <div key={permission.id} className="flex items-center space-x-2">
                                                     <Checkbox
                                                         id={`edit-perm-${permission.id}`}

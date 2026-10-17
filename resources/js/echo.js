@@ -2,6 +2,9 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import axios from 'axios';
 
+// Reverb uses the Pusher protocol under the hood
+window.Pusher = Pusher;
+
 // Configure axios defaults for CSRF token
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');

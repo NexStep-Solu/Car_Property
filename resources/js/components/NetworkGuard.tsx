@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import OfflinePage from "@/pages/OfflinePage";
 
-export default function NetworkGuard({ children }) {
+export default function NetworkGuard({ children }: { children: ReactNode }) {
   const [online, setOnline] = useState(navigator.onLine);
 
   useEffect(() => {

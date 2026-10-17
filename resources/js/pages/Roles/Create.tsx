@@ -32,7 +32,7 @@ export default function RolesCreate({ permissions }: Props) {
         },
     ];
 
-    const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
+    const [, setSelectedPermissions] = useState<number[]>([]);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',

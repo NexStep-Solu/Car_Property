@@ -9,20 +9,18 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminOnly
 {
     /**
-     * Allow access if user is admin (role enum or Spatie role) or has any permission.
-     * This lets manager/employee with assigned permissions access the admin area;
-     * the sidebar and buttons still hide by permission on the frontend.
+     * Allow access if user has Spatie admin role or any permission.
      */
     public function handle(Request $request, Closure $next): Response
     {
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(403, 'You do not have permission to access this page.');
         }
 
-        // Admin by legacy role enum
-        if ($user->role === 'admin') {
+        // Super Admin (admin guard) always passes
+        if ($user->hasRole('super_admin', 'admin')) {
             return $next($request);
         }
 
@@ -31,7 +29,7 @@ class AdminOnly
             return $next($request);
         }
 
-        // Any user with at least one permission can access (e.g. manager/employee with view_users, etc.)
+        // Any user with at least one permission can access
         if ($user->getAllPermissions()->isNotEmpty()) {
             return $next($request);
         }

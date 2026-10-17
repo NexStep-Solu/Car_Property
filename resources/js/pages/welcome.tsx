@@ -1,10 +1,10 @@
 import ColorBends from '@/components/ColorBends';
 import { Head, Link } from '@inertiajs/react';
 
-export default function Welcome({ auth }: { auth: { user: any } }) {
+export default function Welcome({ auth }: { auth: { user: { id: number; name: string; email: string } | null } }) {
     return (
         <>
-            <Head title="Unity Hospital ERP">
+            <Head title="Car Property">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link
                     href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600"
@@ -52,10 +52,10 @@ export default function Welcome({ auth }: { auth: { user: any } }) {
                                     </div>
                                     <div className="flex flex-col leading-tight">
                                         <span className="text-xs font-semibold tracking-[0.18em] text-neutral-700 uppercase dark:text-neutral-200">
-                                            Unity Hospital Ltd
+                                            Car Property
                                         </span>
                                         <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                                            Enterprise ERP · Progressive Web App
+                                            Car Sales & Property Management
                                         </span>
                                     </div>
                                 </div>
@@ -87,16 +87,15 @@ export default function Welcome({ auth }: { auth: { user: any } }) {
                         <section className="flex min-h-[60vh] flex-col lg:flex-row lg:items-center lg:gap-16">
                             <div className="flex-1 space-y-5 pt-4 pb-10 lg:pt-0">
                                 <span className="inline-flex items-center rounded-full border border-white/60 bg-white/80 px-3 py-1 text-[10px] font-medium tracking-[0.18em] text-neutral-600 uppercase shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/10 dark:text-neutral-200">
-                                    Unity Hospital ERP · PWA
+                                    Car Property · PWA
                                 </span>
 
                                 <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl lg:text-5xl dark:text-neutral-50">
-                                    Welcome to your unified hospital operations workspace.
+                                    Welcome to your car sales workspace.
                                 </h1>
 
                                 <p className="max-w-xl text-[13px] leading-relaxed text-neutral-700 dark:text-neutral-300">
-                                    Unity ERP connects departments, clinicians, and administration in one secure browser‑based system. Manage patients, beds, admissions, and
-                                    billing from any device with a single sign‑on.
+                                    Car Property connects car sales and property management in one secure browser-based system.
                                 </p>
 
                                 <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -136,7 +135,7 @@ export default function Welcome({ auth }: { auth: { user: any } }) {
                                             </div>
                                             <div className="flex flex-col leading-tight">
                                                 <span className="text-[11px] font-semibold text-neutral-900 dark:text-neutral-50">
-                                                    Unity Hospital Ltd
+                                                    Car Property
                                                 </span>
                                                 <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
                                                     Staff access portal
@@ -149,7 +148,7 @@ export default function Welcome({ auth }: { auth: { user: any } }) {
                                     </div>
 
                                     <p className="mb-3 text-[11px] text-neutral-600 dark:text-neutral-300">
-                                        Continue to the login screen with your Unity credentials. Access is restricted to authorized hospital ERP staff.
+                                        Continue to the login screen with your Car Property credentials. Access is restricted to authorized staff.
                                     </p>
 
                                     {auth.user ? (
@@ -169,8 +168,8 @@ export default function Welcome({ auth }: { auth: { user: any } }) {
                                     )}
 
                                     <div className="space-y-1 text-[10px] text-neutral-500 dark:text-neutral-400">
-                                        <div>Branch staff · Head office · Internal audit · IT admin.</div>
-                                        <div>Having trouble? Contact IT support or your branch administrator before attempting to log in again.</div>
+                                        <div>Car sales · Property · Internal audit · IT admin.</div>
+                                        <div>Having trouble? Contact IT support or your administrator before attempting to log in again.</div>
                                     </div>
                                 </div>
                             </div>
@@ -239,7 +238,7 @@ export default function Welcome({ auth }: { auth: { user: any } }) {
                                     Contact IT support or your branch admin for access requests or password resets.
                                 </div>
                                 <div className="text-[10px]">
-                                    Unity Hospital ERP · Internal use only · All access is logged.
+                                    Car Property · Internal use only · All access is logged.
                                 </div>
                             </div>
                         </section>

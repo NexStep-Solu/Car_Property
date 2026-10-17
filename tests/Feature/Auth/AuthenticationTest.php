@@ -5,15 +5,21 @@ use App\Models\User;
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
 test('login screen can be rendered', function () {
-    $response = $this->get('/login');
+    $response = $this->get('/');
 
     $response->assertStatus(200);
+});
+
+test('old login url redirects to root', function () {
+    $response = $this->get('/login');
+
+    $response->assertRedirect('/');
 });
 
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
 
-    $response = $this->post('/login', [
+    $response = $this->post('/', [
         'email' => $user->email,
         'password' => 'password',
     ]);
@@ -25,7 +31,7 @@ test('users can authenticate using the login screen', function () {
 test('users can not authenticate with invalid password', function () {
     $user = User::factory()->create();
 
-    $this->post('/login', [
+    $this->post('/', [
         'email' => $user->email,
         'password' => 'wrong-password',
     ]);

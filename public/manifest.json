@@ -1,7 +1,7 @@
 {
-  "name": "Unity Hospital ERP",
-  "short_name": "UnityERP",
-  "description": "Enterprise PWA for Hospital Operations",
+  "name": "Car Property",
+  "short_name": "CarProperty",
+  "description": "Car Property Management",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -4,16 +4,26 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
     use HasRoles;
+
+    /**
+     * The guard used by Spatie roles/permissions lookups.
+     */
+    protected $guard_name = 'web';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,11 +32,11 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
-        'role',
-        'avatar',
-        'bio',
-        'branch_id',
+        'account_status',
+        'is_admin_account',
+        'preferred_language',
     ];
 
     /**
@@ -48,30 +58,43 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
+            'is_admin_account' => 'boolean',
             'password' => 'hashed',
         ];
     }
 
-    // Relationships
-
-    public function employee()
+    protected static function booted(): void
     {
-        return $this->hasOne(Employee::class);
-    }
-
-    public function branch(): BelongsTo
-    {
-        return $this->belongsTo(Branch::class);
-    }
-
-    public function scopeAdmins($query)
-    {
-        return $query->where('role', 'admin');
+        static::creating(function (User $user) {
+            if (empty($user->uuid)) {
+                $user->uuid = (string) Str::uuid();
+            }
+        });
     }
 
     // Helper methods
-    public function isAdmin()
+    public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->hasRole('admin') || $this->hasRole('super_admin', 'admin');
+    }
+
+    /**
+     * The user's seller profile, if any.
+     */
+    public function sellerProfile(): HasOne
+    {
+        return $this->hasOne(SellerProfile::class);
+    }
+
+    /**
+     * Showrooms the user belongs to via membership.
+     */
+    public function showrooms(): BelongsToMany
+    {
+        return $this->belongsToMany(Showroom::class, 'showroom_users')
+            ->withPivot(['member_role', 'is_active', 'joined_at'])
+            ->withTimestamps();
     }
 }

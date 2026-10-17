@@ -5,8 +5,8 @@ export default function AppLogoIcon(
 ) {
     return (
         <img
-            src="/favicon.ico"
-            alt="App Logo"
+            src="/icons/carselling.png"
+            alt="Car Property"
             {...props}
         />
     );

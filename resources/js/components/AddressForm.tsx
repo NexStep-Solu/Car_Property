@@ -13,7 +13,7 @@ interface AddressFormProps {
 }
 
 const AddressForm: React.FC<AddressFormProps> = ({ region, setRegion, district, setDistrict, township, setTownship, onUpdate }) => {
-    const data = addressdata[0];
+    const data = addressdata[0] as Record<string, Record<string, string[]>>;
 
     const regions = Object.keys(data);
     const districts = region ? Object.keys(data[region] || {}) : [];
