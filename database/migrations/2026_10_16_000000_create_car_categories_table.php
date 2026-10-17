@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name', 100)->unique();
             $table->string('slug', 120)->unique();
             $table->text('description')->nullable();
-            $table->string('icon_storage_key', 500)->nullable();
+            $table->string('icon_storage_key')->nullable();
             $table->boolean('is_active')->default(true);
             $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();

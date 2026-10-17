@@ -19,7 +19,6 @@ return new class extends Migration
             $table->foreignId('showroom_id')->nullable()->constrained('showrooms')->nullOnDelete();
             $table->foreignId('category_id')
                 ->nullable()
-                ->after('showroom_id')
                 ->constrained('car_categories')
                 ->nullOnDelete();
 
