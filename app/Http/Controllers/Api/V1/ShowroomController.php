@@ -31,7 +31,7 @@ class ShowroomController extends BaseApiController
         $user = $request->user();
 
         $showroom = Showroom::where('owner_user_id', $user->id)->latest('id')->first()
-            ?? Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->wherePivot('is_active', true))
+            ?? Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->where('showroom_users.is_active', true))
                 ->latest('id')
                 ->firstOrFail();
 
@@ -43,7 +43,7 @@ class ShowroomController extends BaseApiController
         $user = $request->user();
 
         $showroom = Showroom::where('owner_user_id', $user->id)->latest('id')->first()
-            ?? Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->wherePivot('is_active', true))
+            ?? Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->where('showroom_users.is_active', true))
                 ->latest('id')
                 ->firstOrFail();
 

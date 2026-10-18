@@ -58,7 +58,7 @@ class SubscriptionController extends Controller
         }
 
         $owned = Showroom::where('owner_user_id', $user->id)->pluck('id')->all();
-        $member = Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->wherePivot('is_active', true))
+        $member = Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->where('showroom_users.is_active', true))
             ->pluck('id')->all();
 
         return array_values(array_unique(array_merge($owned, $member)));

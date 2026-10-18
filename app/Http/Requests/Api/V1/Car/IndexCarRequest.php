@@ -23,6 +23,7 @@ class IndexCarRequest extends FormRequest
     {
         return [
             'q' => 'nullable|string|max:180',
+            'make' => 'nullable|string|max:100',
             'make_id' => 'nullable|integer|exists:car_makes,id',
             'model_id' => 'nullable|integer|exists:car_models,id',
             'category_id' => 'nullable|integer|exists:car_categories,id',
@@ -35,9 +36,11 @@ class IndexCarRequest extends FormRequest
             'transmission' => 'nullable|string|max:30',
             'fuel_type' => 'nullable|string|max:30',
             'body_type' => 'nullable|string|max:40',
+            'condition' => 'nullable|string|in:new,used,reconditioned',
             'location' => 'nullable|string|max:180',
             'region' => 'nullable|string|max:100',
-            'sort' => 'nullable|string|in:newest,price_asc,price_desc,year_desc',
+            'featured' => 'nullable|boolean',
+            'sort' => 'nullable|string|in:newest,price_asc,price_desc,mileage_asc,year_desc',
             'page' => 'nullable|integer|min:1',
             'per_page' => 'nullable|integer|min:1|max:100',
         ];

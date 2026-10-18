@@ -67,7 +67,9 @@ class ShowroomApplicationController extends Controller
 
         $owned = Showroom::where('owner_user_id', $user->id)->pluck('id')->all();
         $member = Showroom::whereHas('users', function ($q) use ($user) {
-            $q->where('users.id', $user->id)->wherePivot('is_active', true);
+            // `whereHas` passes an Eloquent Builder, not the BelongsToMany
+            // relation, so pivot columns must be table-qualified.
+            $q->where('users.id', $user->id)->where('showroom_users.is_active', true);
         })->pluck('id')->all();
 
         return array_values(array_unique(array_merge($owned, $member)));

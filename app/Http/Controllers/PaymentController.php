@@ -59,7 +59,7 @@ class PaymentController extends Controller
 
         if (! $user->hasAnyRole(['super_admin', 'reviewer', 'support'], 'admin')) {
             $showroomIds = \App\Models\Showroom::where('owner_user_id', $user->id)->pluck('id')
-                ->merge(\App\Models\Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->wherePivot('is_active', true))->pluck('id'))
+                ->merge(\App\Models\Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->where('showroom_users.is_active', true))->pluck('id'))
                 ->unique()->values()->all();
             $query->where(function ($q) use ($user, $showroomIds) {
                 $q->where('payer_user_id', $user->id)

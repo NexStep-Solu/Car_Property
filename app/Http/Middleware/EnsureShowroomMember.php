@@ -43,7 +43,15 @@ class EnsureShowroomMember
 
         if (! $showroom instanceof Showroom) {
             $showroom = Showroom::where('owner_user_id', $user->id)->latest('id')->first()
-                ?? Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->wherePivot('is_active', true))
+                ?? Showroom::whereHas(
+                    'users',
+                    // The closure receives an Eloquent Builder, not the
+                    // BelongsToMany relation, so `wherePivot()` is unavailable —
+                    // pivot columns must be qualified with the pivot table name.
+                    fn ($q) => $q
+                        ->where('users.id', $user->id)
+                        ->where('showroom_users.is_active', true)
+                )
                     ->latest('id')
                     ->first();
         }

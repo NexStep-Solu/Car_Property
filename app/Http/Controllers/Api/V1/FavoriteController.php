@@ -21,7 +21,13 @@ class FavoriteController extends BaseApiController
                     ->where('favorites.user_id', $userId);
             })
             ->select('cars.*')
-            ->with(['images', 'category', 'make', 'model'])
+            ->with([
+                'images',
+                'category',
+                'make',
+                'model',
+                'favoritedBy' => fn ($query) => $query->where('users.id', $userId),
+            ])
             ->orderByDesc('favorites.id')
             ->paginate(min((int) $request->input('per_page', 20), 100));
 
@@ -36,6 +42,10 @@ class FavoriteController extends BaseApiController
         ]);
 
         $car->load(['images', 'category', 'make', 'model']);
+
+        // The favorite row exists by the time the resource renders, so the flag
+        // can be asserted without another round trip.
+        $car->setRelation('favoritedBy', collect([$request->user()->only('id')]));
 
         return $favorite->wasRecentlyCreated
             ? $this->created(new CarResource($car))

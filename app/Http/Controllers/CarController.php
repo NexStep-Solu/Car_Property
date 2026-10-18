@@ -80,7 +80,7 @@ class CarController extends Controller
         }
 
         $owned = Showroom::where('owner_user_id', $user->id);
-        $member = Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->wherePivot('is_active', true));
+        $member = Showroom::whereHas('users', fn ($q) => $q->where('users.id', $user->id)->where('showroom_users.is_active', true));
 
         return $owned->union($member)->orderBy('business_name')->get(['id', 'business_name']);
     }

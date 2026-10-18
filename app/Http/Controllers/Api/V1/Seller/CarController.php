@@ -30,7 +30,7 @@ class CarController extends BaseApiController
 
         $showroomIds = Showroom::where(function ($q) use ($user) {
             $q->where('owner_user_id', $user->id)
-                ->orWhereHas('users', fn ($q) => $q->where('users.id', $user->id)->wherePivot('is_active', true));
+                ->orWhereHas('users', fn ($q) => $q->where('users.id', $user->id)->where('showroom_users.is_active', true));
         })->pluck('id');
 
         return Car::where(function ($q) use ($user, $showroomIds) {

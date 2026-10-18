@@ -6,6 +6,9 @@ use App\Http\Controllers\Api\V1\PackageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/cars', [CarController::class, 'index']);
+// Registered before `/cars/{car:uuid}` so the literal path is not swallowed
+// by the implicit model binding.
+Route::get('/cars/filters', [CarController::class, 'filters']);
 Route::get('/cars/{car:uuid}', [CarController::class, 'show']);
 Route::get('/car-makes', [CarMetaController::class, 'makes']);
 Route::get('/car-models', [CarMetaController::class, 'models']);
